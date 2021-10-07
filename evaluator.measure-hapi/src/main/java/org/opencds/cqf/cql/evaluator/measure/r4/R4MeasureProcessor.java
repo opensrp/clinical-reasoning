@@ -236,7 +236,8 @@ public class R4MeasureProcessor implements MeasureProcessor<MeasureReport, Endpo
         if (dataEndpoint == null && additionalData == null) {
             throw new IllegalArgumentException("Either dataEndpoint or additionalData must be specified");
         }
-        Triple<String, ModelResolver, RetrieveProvider> dataProvider = null;
+        
+        DataProviderComponents dataProvider = null;
         if (dataEndpoint != null) {
             dataProvider = this.dataProviderFactory.create(this.endpointConverter.getEndpointInfo(dataEndpoint));
         } else {

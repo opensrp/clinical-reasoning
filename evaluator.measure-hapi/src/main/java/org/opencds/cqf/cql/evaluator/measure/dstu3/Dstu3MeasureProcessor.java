@@ -9,7 +9,6 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang3.tuple.Triple;
 import org.cqframework.cql.cql2elm.CqlTranslatorOptions;
 import org.cqframework.cql.cql2elm.model.Model;
 import org.cqframework.cql.elm.execution.Library;
@@ -27,12 +26,11 @@ import org.opencds.cqf.cql.engine.debug.DebugMap;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.opencds.cqf.cql.engine.execution.CqlEngine;
 import org.opencds.cqf.cql.engine.execution.LibraryLoader;
-import org.opencds.cqf.cql.engine.model.ModelResolver;
-import org.opencds.cqf.cql.engine.retrieve.RetrieveProvider;
 import org.opencds.cqf.cql.engine.runtime.DateTime;
 import org.opencds.cqf.cql.engine.runtime.Interval;
 import org.opencds.cqf.cql.engine.terminology.TerminologyProvider;
 import org.opencds.cqf.cql.evaluator.builder.Constants;
+import org.opencds.cqf.cql.evaluator.builder.DataProviderComponents;
 import org.opencds.cqf.cql.evaluator.builder.DataProviderFactory;
 import org.opencds.cqf.cql.evaluator.builder.EndpointConverter;
 import org.opencds.cqf.cql.evaluator.builder.FhirDalFactory;
@@ -227,7 +225,8 @@ public class Dstu3MeasureProcessor implements MeasureProcessor<MeasureReport, En
         if (dataEndpoint == null && additionalData == null) {
             throw new IllegalArgumentException("Either dataEndpoint or additionalData must be specified");
         }
-        Triple<String, ModelResolver, RetrieveProvider> dataProvider = null;
+        
+        DataProviderComponents dataProvider = null;
         if (dataEndpoint != null) {
             dataProvider = this.dataProviderFactory.create(this.endpointConverter.getEndpointInfo(dataEndpoint));
         } else {
@@ -236,9 +235,9 @@ public class Dstu3MeasureProcessor implements MeasureProcessor<MeasureReport, En
 
         RetrieveProviderConfigurer retrieveProviderConfigurer = new RetrieveProviderConfigurer(retrieveProviderConfig);
 
-        retrieveProviderConfigurer.configure(dataProvider.getRight(), terminologyProvider);
+        retrieveProviderConfigurer.configure(dataProvider.getRetrieveProvider(), terminologyProvider);
 
-        return new CompositeDataProvider(dataProvider.getMiddle(), dataProvider.getRight());
+        return new CompositeDataProvider(dataProvider.getModelResolver(), dataProvider.getRetrieveProvider());
     }
 
     // TODO: This is duplicate logic from the evaluator builder

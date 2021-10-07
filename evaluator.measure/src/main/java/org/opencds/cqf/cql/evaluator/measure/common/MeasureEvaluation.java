@@ -9,16 +9,13 @@ import static org.opencds.cqf.cql.evaluator.measure.common.MeasurePopulationType
 import static org.opencds.cqf.cql.evaluator.measure.common.MeasurePopulationType.NUMERATOR;
 import static org.opencds.cqf.cql.evaluator.measure.common.MeasurePopulationType.NUMERATOREXCLUSION;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.Function;
 
 import org.cqframework.cql.elm.execution.ExpressionDef;
 import org.cqframework.cql.elm.execution.FunctionDef;
-import org.opencds.cqf.cql.engine.data.DataProvider;
 import org.opencds.cqf.cql.engine.execution.Context;
 import org.opencds.cqf.cql.engine.execution.Variable;
 import org.opencds.cqf.cql.engine.runtime.Interval;
@@ -45,31 +42,29 @@ public abstract class MeasureEvaluation<BaseT, MeasureT extends BaseT, MeasureRe
 
     protected MeasureT measure;
     protected Context context;
-    protected Function<SubjectT, String> getId;
     protected String subjectType = null;
     protected MeasureReportBuilder<MeasureT, MeasureReportT, SubjectT> measureReportBuilder;
     protected MeasureDefBuilder<MeasureT> measureDefBuilder;
-    protected String modelUri = null;
     protected String measurementPeriodParameterName = null;
+    protected SubjectProvider subjectProvider;
 
-    public MeasureEvaluation(Context context, MeasureT measure, Function<SubjectT, String> getId,
+    public MeasureEvaluation(Context context, MeasureT measure,
             MeasureReportBuilder<MeasureT, MeasureReportT, SubjectT> measureReportBuilder,
-            MeasureDefBuilder<MeasureT> measureDefBuilder) {
-        this(context, measure, getId, measureReportBuilder, measureDefBuilder, MeasureConstants.FHIR_MODEL_URI,
+            MeasureDefBuilder<MeasureT> measureDefBuilder, SubjectProvider subjectProvider) {
+        this(context, measure,  measureReportBuilder, measureDefBuilder, subjectProvider,
                 MeasureConstants.MEASUREMENT_PERIOD_PARAMETER_NAME);
 
     }
 
-    public MeasureEvaluation(Context context, MeasureT measure, Function<SubjectT, String> getId,
+    public MeasureEvaluation(Context context, MeasureT measure,
             MeasureReportBuilder<MeasureT, MeasureReportT, SubjectT> measureReportBuilder,
-            MeasureDefBuilder<MeasureT> measureDefBuilder, String modelUri, String measurementPeriodParameterName) {
+            MeasureDefBuilder<MeasureT> measureDefBuilder, SubjectProvider subjectProvider, String measurementPeriodParameterName) {
         this.measure = measure;
         this.context = context;
-        this.getId = getId;
         this.measureDefBuilder = measureDefBuilder;
         this.measureReportBuilder = measureReportBuilder;
         this.measurementPeriodParameterName = measurementPeriodParameterName;
-        this.modelUri = modelUri;
+        this.subjectProvider = subjectProvider;
     }
 
     public MeasureReportT evaluate(MeasureEvalType type) {
@@ -93,7 +88,7 @@ public abstract class MeasureEvaluation<BaseT, MeasureT extends BaseT, MeasureRe
 
         this.setMeasurementPeriod(measurementPeriod);
 
-        List<String> subjectIds = getSubjectIds(type, subjectOrPractitionerId);
+        List<String> subjectIds = this.subjectProvider.getSubjects(type, subjectOrPractitionerId);
         switch (type) {
             case PATIENT:
             case SUBJECT:
@@ -110,44 +105,6 @@ public abstract class MeasureEvaluation<BaseT, MeasureT extends BaseT, MeasureRe
         }
     }
 
-    public List<String> getSubjectIds(MeasureEvalType type, String subjectOrPractitionerId) {
-        switch (type) {
-            case PATIENT:
-            case SUBJECT:
-                return getIndividualSubjectId(subjectOrPractitionerId);
-            case SUBJECTLIST:
-            case PATIENTLIST:
-                return this.getPractitionerSubjectIds(subjectOrPractitionerId);
-            case POPULATION:
-                return this.getAllSubjectIds();
-            default:
-                if (subjectOrPractitionerId != null) {
-                    return getIndividualSubjectId(subjectOrPractitionerId);
-                } else {
-                    return getAllSubjectIds();
-                }
-        }
-    }
-
-    public List<String> getIndividualSubjectId(String subjectId) {
-        String parsedSubjectId = null;
-        if (subjectId != null && subjectId.contains("/")) {
-            String[] subjectIdParts = subjectId.split("/");
-            this.subjectType = subjectIdParts[0];
-            parsedSubjectId = subjectIdParts[1];
-        } else {
-            this.subjectType = "Patient";
-            parsedSubjectId = subjectId;
-            logger.info("Could not determine subjectType. Defaulting to Patient");
-        }
-
-        if (parsedSubjectId == null) {
-            throw new IllegalArgumentException("subjectId is required for individual reports.");
-        }
-
-        return Collections.singletonList(this.subjectType + "/" + parsedSubjectId);
-    }
-
     protected Interval getMeasurementPeriod() {
         return (Interval) this.context.resolveParameterRef(null, this.measurementPeriodParameterName);
     }
@@ -156,40 +113,6 @@ public abstract class MeasureEvaluation<BaseT, MeasureT extends BaseT, MeasureRe
         if (measurementPeriod != null) {
             this.context.setParameter(null, this.measurementPeriodParameterName, measurementPeriod);
         }
-    }
-
-    protected DataProvider getDataProvider() {
-        return this.context.resolveDataProviderByModelUri(this.modelUri);
-    }
-
-    @SuppressWarnings("unchecked")
-    protected List<String> getAllSubjectIds() {
-        this.subjectType = "Patient";
-        List<String> subjectIds = new ArrayList<>();
-        Iterable<Object> subjectRetrieve = this.getDataProvider().retrieve(null, null, null, subjectType, null, null,
-                null, null, null, null, null, null);
-        subjectRetrieve.forEach(x -> subjectIds.add(this.getId.apply((SubjectT) x)));
-        return subjectIds;
-    }
-
-    @SuppressWarnings("unchecked")
-    protected List<String> getPractitionerSubjectIds(String practitionerRef) {
-        this.subjectType = "Patient";
-
-        if (practitionerRef == null) {
-            return getAllSubjectIds();
-        }
-
-        List<String> subjectIds = new ArrayList<>();
-
-        if (!practitionerRef.contains("/")) {
-            practitionerRef = "Practitioner/" + practitionerRef;
-        }
-
-        Iterable<Object> subjectRetrieve = this.getDataProvider().retrieve("Practitioner", "generalPractitioner",
-                practitionerRef, subjectType, null, null, null, null, null, null, null, null);
-        subjectRetrieve.forEach(x -> subjectIds.add(this.getId.apply((SubjectT) x)));
-        return subjectIds;
     }
 
     protected void setContextToSubject(String subjectId) {

@@ -11,12 +11,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.hl7.fhir.instance.model.api.IBaseBundle;
 import org.hl7.fhir.instance.model.api.IBaseCoding;
 import org.opencds.cqf.cql.engine.model.ModelResolver;
 import org.opencds.cqf.cql.engine.retrieve.RetrieveProvider;
 import org.opencds.cqf.cql.evaluator.builder.Constants;
+import org.opencds.cqf.cql.evaluator.builder.DataProviderComponents;
 import org.opencds.cqf.cql.evaluator.builder.EndpointInfo;
 import org.opencds.cqf.cql.evaluator.builder.ModelResolverFactory;
 import org.opencds.cqf.cql.evaluator.engine.retrieve.BundleRetrieveProvider;
@@ -42,7 +42,7 @@ public class DataProviderFactory implements org.opencds.cqf.cql.evaluator.builde
     }
 
     @Override
-    public Triple<String, ModelResolver, RetrieveProvider> create(EndpointInfo endpointInfo) {
+    public DataProviderComponents create(EndpointInfo endpointInfo) {
         requireNonNull(endpointInfo, "endpointInfo can not be null");
 
         if (endpointInfo.getType() == null) {
@@ -53,7 +53,7 @@ public class DataProviderFactory implements org.opencds.cqf.cql.evaluator.builde
         Pair<ModelResolver, RetrieveProvider> dp = create(modelUri, endpointInfo.getType(), endpointInfo.getAddress(),
                 endpointInfo.getHeaders());
 
-        return Triple.of(modelUri, dp.getLeft(), dp.getRight());
+        return new DataProviderComponents(modelUri, dp.getLeft(), dp.getRight());
     }
 
     public IBaseCoding detectType(String url) {
@@ -120,7 +120,7 @@ public class DataProviderFactory implements org.opencds.cqf.cql.evaluator.builde
     }
 
     @Override
-    public Triple<String, ModelResolver, RetrieveProvider> create(IBaseBundle dataBundle) {
+    public DataProviderComponents create(IBaseBundle dataBundle) {
         requireNonNull(dataBundle, "dataBundle can not be null");
 
         if (!dataBundle.getStructureFhirVersionEnum().equals(this.fhirContext.getVersion().getVersion())) {
@@ -130,6 +130,6 @@ public class DataProviderFactory implements org.opencds.cqf.cql.evaluator.builde
         ModelResolver modelResolver = this.getFactory(Constants.FHIR_MODEL_URI)
                 .create(this.fhirContext.getVersion().getVersion().getFhirVersionString());
 
-        return Triple.of(Constants.FHIR_MODEL_URI, modelResolver, new BundleRetrieveProvider(fhirContext, dataBundle));
+        return new DataProviderComponents(Constants.FHIR_MODEL_URI, modelResolver, new BundleRetrieveProvider(fhirContext, dataBundle));
     }
 }
