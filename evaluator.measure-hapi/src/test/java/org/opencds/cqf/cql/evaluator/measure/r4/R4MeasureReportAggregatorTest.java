@@ -181,6 +181,8 @@ public class R4MeasureReportAggregatorTest {
         MeasureValidationUtils.validateStratifier(actualMrgc.getStratifier().get(1), "true", "denominator", 8);
         MeasureValidationUtils.validateStratifier(expectedMrgc.getStratifier().get(1), "true", "denominator", 8);
 
+        System.out.println(fhirContext.newJsonParser().setPrettyPrint(true).encodeResourceToString(actual));
+
     }
 
 }

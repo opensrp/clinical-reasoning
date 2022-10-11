@@ -26,7 +26,7 @@ import org.opencds.cqf.cql.evaluator.builder.ModelResolverFactory;
 import org.opencds.cqf.cql.evaluator.builder.TerminologyProviderFactory;
 import org.opencds.cqf.cql.evaluator.builder.data.FhirModelResolverFactory;
 import org.opencds.cqf.cql.evaluator.builder.data.TypedRetrieveProviderFactory;
-import org.opencds.cqf.cql.evaluator.builder.library.TypedLibrarySourceProviderFactory;
+import org.opencds.cqf.cql.evaluator.builder.terminology.library.TypedLibrarySourceProviderFactory;
 import org.opencds.cqf.cql.evaluator.builder.terminology.TypedTerminologyProviderFactory;
 import org.opencds.cqf.cql.evaluator.cql2elm.content.fhir.BundleFhirLibrarySourceProvider;
 import org.opencds.cqf.cql.evaluator.cql2elm.util.LibraryVersionSelector;
@@ -80,7 +80,7 @@ public class LibraryProcessorTests {
             }
         };
 
-        LibrarySourceProviderFactory libraryLoaderFactory = new org.opencds.cqf.cql.evaluator.builder.library.LibrarySourceProviderFactory(
+        LibrarySourceProviderFactory libraryLoaderFactory = new org.opencds.cqf.cql.evaluator.builder.terminology.library.LibrarySourceProviderFactory(
                 fhirContext, adapterFactory, librarySourceProviderFactories, libraryVersionSelector);
         Set<TypedRetrieveProviderFactory> retrieveProviderFactories = new HashSet<TypedRetrieveProviderFactory>() {
             {

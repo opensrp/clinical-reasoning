@@ -15,7 +15,7 @@ public abstract class BuilderBindingModule {
 
     @Binds
     @Singleton
-    abstract LibrarySourceProviderFactory libraryLoaderFactory(org.opencds.cqf.cql.evaluator.builder.library.LibrarySourceProviderFactory libraryLoaderFactory);
+    abstract LibrarySourceProviderFactory libraryLoaderFactory(org.opencds.cqf.cql.evaluator.builder.terminology.library.LibrarySourceProviderFactory libraryLoaderFactory);
 
 
     @Binds

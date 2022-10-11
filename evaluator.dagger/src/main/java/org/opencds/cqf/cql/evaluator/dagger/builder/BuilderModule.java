@@ -14,10 +14,10 @@ import org.opencds.cqf.cql.evaluator.builder.data.FhirFileRetrieveProviderFactor
 import org.opencds.cqf.cql.evaluator.builder.data.FhirModelResolverFactory;
 import org.opencds.cqf.cql.evaluator.builder.data.FhirRestRetrieveProviderFactory;
 import org.opencds.cqf.cql.evaluator.builder.data.TypedRetrieveProviderFactory;
-import org.opencds.cqf.cql.evaluator.builder.library.CqlFileLibrarySourceProviderFactory;
-import org.opencds.cqf.cql.evaluator.builder.library.FhirFileLibrarySourceProviderFactory;
-import org.opencds.cqf.cql.evaluator.builder.library.FhirRestLibrarySourceProviderFactory;
-import org.opencds.cqf.cql.evaluator.builder.library.TypedLibrarySourceProviderFactory;
+import org.opencds.cqf.cql.evaluator.builder.terminology.library.CqlFileLibrarySourceProviderFactory;
+import org.opencds.cqf.cql.evaluator.builder.terminology.library.FhirFileLibrarySourceProviderFactory;
+import org.opencds.cqf.cql.evaluator.builder.terminology.library.FhirRestLibrarySourceProviderFactory;
+import org.opencds.cqf.cql.evaluator.builder.terminology.library.TypedLibrarySourceProviderFactory;
 import org.opencds.cqf.cql.evaluator.builder.terminology.FhirFileTerminologyProviderFactory;
 import org.opencds.cqf.cql.evaluator.builder.terminology.FhirRestTerminologyProviderFactory;
 import org.opencds.cqf.cql.evaluator.builder.terminology.TypedTerminologyProviderFactory;

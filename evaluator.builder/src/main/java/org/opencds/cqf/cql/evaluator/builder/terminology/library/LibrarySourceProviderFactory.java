@@ -1,4 +1,4 @@
-package org.opencds.cqf.cql.evaluator.builder.library;
+package org.opencds.cqf.cql.evaluator.builder.terminology.library;
 
 import static java.util.Objects.requireNonNull;
 import static org.opencds.cqf.cql.evaluator.builder.util.UriUtil.isFileUri;
