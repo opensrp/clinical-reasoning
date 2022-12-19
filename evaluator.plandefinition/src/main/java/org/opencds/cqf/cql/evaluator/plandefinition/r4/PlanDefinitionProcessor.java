@@ -193,7 +193,7 @@ public class PlanDefinitionProcessor {
     if (action.hasDefinitionCanonicalType()) {
       logger.debug("Resolving definition " + action.getDefinitionCanonicalType().getValue());
       CanonicalType definition = action.getDefinitionCanonicalType();
-      switch (getResourceName(definition)) {
+      switch (getResourceName(definition, session.planDefinition))  {
         case "PlanDefinition":
           applyNestedPlanDefinition(session, definition, action);
           break;
@@ -521,12 +521,15 @@ public class PlanDefinitionProcessor {
     return ((StringType) result).asStringValue();
   }
 
-  protected static String getResourceName(CanonicalType canonical) {
+  protected String getResourceName(CanonicalType canonical, MetadataResource resource) {
     if (canonical.hasValue()) {
-      String id = canonical.getValue();
+      var id = canonical.getValue();
       if (id.contains("/")) {
         id = id.replace(id.substring(id.lastIndexOf("/")), "");
         return id.contains("/") ? id.substring(id.lastIndexOf("/") + 1) : id;
+      }
+      else if (id.startsWith("#")){
+        return resolveContained(resource, id).getResourceType().name();
       }
       return null;
     }
