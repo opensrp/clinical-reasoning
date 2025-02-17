@@ -77,7 +77,7 @@ public class LibraryEngine {
         var cqlFhirParametersConverter = Engines.getCqlFhirParametersConverter(repository.fhirContext());
         var engine = Engines.forRepositoryAndSettings(settings, repository, additionalData, npmProcessor, true);
         var evaluationParameters = cqlFhirParametersConverter.toCqlParameters(parameters);
-        var result = engine.evaluate(id.getId(), expressions, buildContextParameter(patientId), evaluationParameters);
+        var result = engine.evaluate(id, expressions, buildContextParameter(patientId), evaluationParameters, null);
 
         return cqlFhirParametersConverter.toFhirParameters(result);
     }

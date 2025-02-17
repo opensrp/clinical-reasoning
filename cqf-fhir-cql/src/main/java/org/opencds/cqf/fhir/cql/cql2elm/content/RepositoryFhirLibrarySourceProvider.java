@@ -43,8 +43,29 @@ public class RepositoryFhirLibrarySourceProvider extends BaseFhirLibrarySourcePr
                 this.fhirContext.getResourceDefinition("Bundle").getImplementingClass();
         var lt = this.fhirContext.getResourceDefinition("Library").getImplementingClass();
 
-        var libs = repository.search(
-                bt, lt, Searches.byNameAndVersion(libraryIdentifier.getId(), libraryIdentifier.getVersion()));
+    IBaseBundle libs;
+
+    if (libraryIdentifier.getSystem() != null
+        && libraryIdentifier.getId() != null
+        && libraryIdentifier.getVersion() != null) {
+      libs =
+          repository.search(
+              bt,
+              lt,
+              Searches.byUrlAndVersion(
+                  libraryIdentifier.getSystem() + libraryIdentifier.getId(),
+                  libraryIdentifier.getVersion()));
+    } else if (libraryIdentifier.getSystem() != null && libraryIdentifier.getId() != null) {
+      libs =
+          repository.search(
+              bt, lt, Searches.byUrl(libraryIdentifier.getSystem() + libraryIdentifier.getId()));
+    } else {
+      libs =
+          repository.search(
+              bt,
+              lt,
+              Searches.byNameAndVersion(libraryIdentifier.getId(), libraryIdentifier.getVersion()));
+    }
 
         var iter = new BundleIterable<>(repository, libs).iterator();
 
