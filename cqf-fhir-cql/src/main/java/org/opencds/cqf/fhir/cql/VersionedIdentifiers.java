@@ -32,6 +32,8 @@ public class VersionedIdentifiers {
             versionedIdentifier.setId(cqlName);
         }
 
+    versionedIdentifier.setSystem(urlSplit.length == 2 ? urlSplit[0] + "Library/" : null);
+
         return versionedIdentifier;
     }
 }
