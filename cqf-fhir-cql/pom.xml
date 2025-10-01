@@ -5,7 +5,7 @@
 
   <groupId>org.smartregister</groupId>
   <artifactId>cqf-fhir-cql</artifactId>
-  <version>3.8.0-OpenSRP-2-SNAPSHOT</version>
+  <version>3.8.0-opensrp-hotfix-SNAPSHOT</version>
   <name>FHIR Clinical Reasoning (CQL)</name>
   <description>Tools, utilities, code gen to support CQL in FHIR Clinical Reasoning operations</description>
 
